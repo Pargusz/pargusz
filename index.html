@@ -103,6 +103,60 @@
         .project-cat { color: var(--accent-primary); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
         .project-title { font-size: 1.5rem; margin-top: 5px; }
 
+        /* --- GITHUB REPOS (NEW) --- */
+        #github-repos { background: var(--bg-color); }
+        .github-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
+        
+        .repo-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+            text-align: left;
+            height: 100%;
+        }
+
+        .repo-card:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-5px);
+            background: var(--surface-hover);
+        }
+
+        .repo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .repo-icon { color: var(--text-muted); font-size: 1.2rem; }
+        .repo-link { color: var(--text-main); font-family: var(--font-heading); font-weight: 600; font-size: 1.1rem; }
+        .repo-link:hover { color: var(--accent-primary); text-decoration: underline; }
+        
+        .repo-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .repo-stats {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 15px;
+        }
+
+        .repo-stat { display: flex; align-items: center; gap: 5px; }
+        .lang-circle { width: 10px; height: 10px; border-radius: 50%; background-color: var(--accent-primary); display: inline-block; }
+
         /* --- ABOUT --- */
         .about-wrapper { display: flex; align-items: center; gap: 80px; }
         .about-visual { flex: 1; }
@@ -227,6 +281,7 @@
                     <li><a href="#hero" class="nav-link active">Anasayfa</a></li>
                     <li><a href="#services" class="nav-link">Hizmetler</a></li>
                     <li><a href="#portfolio" class="nav-link">Portfolio</a></li>
+                    <li><a href="#github-repos" class="nav-link">GitHub</a></li>
                     <li><a href="#about" class="nav-link">Hakkımda</a></li>
                     <li><a href="#contact" class="nav-link">İletişim</a></li>
                 </ul>
@@ -320,6 +375,25 @@
                         <h3 class="project-title">Red Team Operation</h3>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="github-repos" class="section-padding">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2>GitHub Projelerim</h2>
+                <p>GitHub üzerinde geliştirdiğim açık kaynaklı kodlar ve güncel repolarım.</p>
+            </div>
+            
+            <div class="github-grid" id="github-grid">
+                <p style="text-align:center; color:#666; width:100%;">GitHub verileri yükleniyor...</p>
+            </div>
+            
+            <div style="text-align:center; margin-top:40px;">
+                <a href="https://github.com/Pargusz" target="_blank" rel="noopener noreferrer" class="btn btn-outline">
+                    <i class="fab fa-github" style="margin-right:8px;"></i> Tümünü Gör
+                </a>
             </div>
         </div>
     </section>
@@ -517,6 +591,56 @@
                 item.classList.toggle('active');
             });
         });
+
+        /* --- GITHUB FETCH --- */
+        const username = 'Pargusz';
+        const githubGrid = document.getElementById('github-grid');
+
+        fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=6`)
+            .then(response => response.json())
+            .then(data => {
+                githubGrid.innerHTML = ''; // Loading yazısını sil
+                
+                data.forEach(repo => {
+                    // Create Card HTML
+                    const card = document.createElement('div');
+                    card.classList.add('repo-card');
+                    card.setAttribute('data-aos', 'fade-up');
+                    
+                    const description = repo.description ? repo.description : 'Açıklama bulunmuyor.';
+                    const language = repo.language ? repo.language : 'Code';
+                    
+                    card.innerHTML = `
+                        <div>
+                            <div class="repo-header">
+                                <i class="fab fa-github repo-icon"></i>
+                                <a href="${repo.html_url}" target="_blank" rel="noopener noreferrer" class="repo-link">${repo.name}</a>
+                            </div>
+                            <p class="repo-desc">${description}</p>
+                        </div>
+                        <div class="repo-stats">
+                            <div class="repo-stat">
+                                <span class="lang-circle"></span>
+                                <span>${language}</span>
+                            </div>
+                            <div class="repo-stat">
+                                <i class="far fa-star"></i>
+                                <span>${repo.stargazers_count}</span>
+                            </div>
+                            <div class="repo-stat">
+                                <i class="fas fa-code-branch"></i>
+                                <span>${repo.forks_count}</span>
+                            </div>
+                        </div>
+                    `;
+                    githubGrid.appendChild(card);
+                });
+            })
+            .catch(error => {
+                console.error('GitHub Fetch Error:', error);
+                githubGrid.innerHTML = '<p style="text-align:center;">Projeler yüklenirken bir hata oluştu.</p>';
+            });
+
     </script>
 </body>
 </html>
